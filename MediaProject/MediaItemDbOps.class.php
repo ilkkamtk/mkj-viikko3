@@ -2,6 +2,8 @@
 
 namespace MediaProject;
 
+require_once 'MediaItem.class.php';
+
 class MediaItemDbOps {
     private \PDO $DBH;
 
