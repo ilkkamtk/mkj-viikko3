@@ -4,14 +4,17 @@ namespace MediaProject;
 
 require_once 'MediaItem.class.php';
 
-class MediaItemDbOps {
+class MediaItemDbOps
+{
     private \PDO $DBH;
 
-    public function __construct($DBH) {
+    public function __construct($DBH)
+    {
         $this->DBH = $DBH;
     }
 
-    public function getMediaItems(): array {
+    public function getMediaItems(): array
+    {
         $mediaItems = [];
         $sql = 'SELECT * FROM MediaItems;';
         try {
@@ -27,7 +30,8 @@ class MediaItemDbOps {
         }
     }
 
-    public function getMediaItem($data): ?MediaItem {
+    public function getMediaItem($data): ?MediaItem
+    {
         $sql = 'SELECT * FROM MediaItems WHERE media_id = :media_id';
         try {
             $STH = $this->DBH->prepare($sql);
@@ -44,7 +48,8 @@ class MediaItemDbOps {
         }
     }
 
-    public function insertMediaItem($data): bool {
+    public function insertMediaItem($data): bool
+    {
         $sql = 'INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description) 
                 VALUES (:user_id, :filename, :filesize, :media_type, :title, :description)';
         try {
@@ -57,12 +62,13 @@ class MediaItemDbOps {
         }
     }
 
-    public function updateMediaItem($data): bool {
+    public function updateMediaItem($data): bool
+    {
         $sql = 'UPDATE MediaItems SET title = :title, description = :description WHERE media_id = :media_id AND user_id = :user_id';
         try {
             $STH = $this->DBH->prepare($sql);
             $STH->execute($data);
-            if(!$STH->rowCount() > 0) {
+            if (!$STH->rowCount() > 0) {
                 return false;
             }
             return true;
@@ -120,6 +126,10 @@ class MediaItemDbOps {
             return false;
         }
 
+
+        // add user_id to data array to check that file and media item belong to the same user
+        $data['user_id'] = $user_id;
+
         $sql = 'SELECT filename FROM MediaItems WHERE media_id = :media_id AND user_id = :user_id';
 
         try {
@@ -135,7 +145,6 @@ class MediaItemDbOps {
         }
 
         $sql = 'DELETE FROM MediaItems WHERE media_id = :media_id AND user_id = :user_id';
-        $data['user_id'] = $user_id;
         try {
             $STH = $this->DBH->prepare($sql);
             $STH->execute($data);
