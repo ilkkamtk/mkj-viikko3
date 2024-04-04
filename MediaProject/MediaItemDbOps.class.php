@@ -72,8 +72,11 @@ class MediaItemDbOps {
         }
     }
 
-    public function deleteMediaItem($data): bool
+    public function deleteMediaItem(int $media_id, int $user_id): bool
     {
+        $data = [
+            'media_id' => $media_id,
+        ];
         $this->DBH->beginTransaction();
         $sql = 'DELETE FROM Likes WHERE media_id = :media_id';
         try {
@@ -132,7 +135,7 @@ class MediaItemDbOps {
         }
 
         $sql = 'DELETE FROM MediaItems WHERE media_id = :media_id AND user_id = :user_id';
-
+        $data['user_id'] = $user_id;
         try {
             $STH = $this->DBH->prepare($sql);
             $STH->execute($data);
