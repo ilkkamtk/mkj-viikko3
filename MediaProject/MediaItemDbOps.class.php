@@ -12,14 +12,19 @@ class MediaItemDbOps {
     }
 
     public function getMediaItems(): array {
-        $sql = 'SELECT * FROM MediaItems;';
-        $STH = $this->DBH->query($sql);
-        $STH->setFetchMode(\PDO::FETCH_ASSOC);
         $mediaItems = [];
-        while ($row = $STH->fetch()) {
-            $mediaItems[] = new MediaItem($row);
+        $sql = 'SELECT * FROM MediaItems;';
+        try {
+            $STH = $this->DBH->query($sql);
+            $STH->setFetchMode(\PDO::FETCH_ASSOC);
+            while ($row = $STH->fetch()) {
+                $mediaItems[] = new MediaItem($row);
+            }
+            return $mediaItems;
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->getMediaItems() - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return [];
         }
-        return $mediaItems;
     }
 
     public function insertMediaItem($data): bool {
@@ -30,7 +35,22 @@ class MediaItemDbOps {
             $STH->execute($data);
             return true;
         } catch (\PDOException $e) {
-            file_put_contents('PDOErrors.txt', 'MediaItemDbOps.class.php - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->insertMediaItem() - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return false;
+        }
+    }
+
+    public function updateMediaItem($data): bool {
+        $sql = 'UPDATE MediaItems SET title = :title, description = :description WHERE media_id = :media_id AND user_id = :user_id';
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+            if(!$STH->rowCount() > 0) {
+                return false;
+            }
+            return true;
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->updateMediaItem() - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
             return false;
         }
     }
