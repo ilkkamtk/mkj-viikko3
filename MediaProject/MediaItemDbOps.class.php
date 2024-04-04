@@ -21,4 +21,17 @@ class MediaItemDbOps {
         }
         return $mediaItems;
     }
+
+    public function insertMediaItem($data): bool {
+        $sql = 'INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description) 
+                VALUES (:user_id, :filename, :filesize, :media_type, :title, :description)';
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+            return true;
+        } catch (\PDOException $e) {
+            file_put_contents('PDOErrors.txt', 'MediaItemDbOps.class.php - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return false;
+        }
+    }
 }

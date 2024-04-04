@@ -9,6 +9,10 @@ ini_set('display_errors', 1);
 global $DBH;
 require_once __DIR__ . '/../db/dbConnect.php';
 
+require_once __DIR__ . '/../MediaProject/MediaItemDbOps.class.php';
+
+$mediaItemDbOps = new MediaProject\MediaItemDbOps($DBH);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['title']) && isset($_POST['description']) && $_FILES['file'] !== null) {
         $filename = $_FILES['file']['name'];
@@ -17,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $temp_file = $_FILES['file']['tmp_name'];
         $destination = __DIR__ . '/../uploads/' . $filename;
         if (!move_uploaded_file($temp_file, $destination)) {
-            // header('Location: home.php?success=File upload failed');
+            header('Location: ../home.php?success=File upload failed');
             exit;
         }
 
@@ -30,16 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'filesize' => $filesize,
         ];
 
-        $sql = 'INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description) 
-                VALUES (:user_id, :filename, :filesize, :media_type, :title, :description)';
 
-        try {
-            $STH = $DBH->prepare($sql);
-            $STH->execute($data);
+        if ($mediaItemDbOps->insertMediaItem($data)) {
             header('Location: ../home.php?success=Item added');
-        } catch (PDOException $e) {
-            echo "Could not insert data into the database.";
-            file_put_contents('PDOErrors.txt', 'insertData.php - ' . $e->getMessage(), FILE_APPEND);
+        } else {
+            header('Location: ../home.php?success=Item not added');
         }
     }
 }
