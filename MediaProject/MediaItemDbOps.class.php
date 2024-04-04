@@ -27,6 +27,23 @@ class MediaItemDbOps {
         }
     }
 
+    public function getMediaItem($data): ?MediaItem {
+        $sql = 'SELECT * FROM MediaItems WHERE media_id = :media_id';
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+            $STH->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $STH->fetch();
+            if ($row) {
+                return new MediaItem($row);
+            }
+            return null;
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->getMediaItem() - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return null;
+        }
+    }
+
     public function insertMediaItem($data): bool {
         $sql = 'INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description) 
                 VALUES (:user_id, :filename, :filesize, :media_type, :title, :description)';
@@ -51,6 +68,83 @@ class MediaItemDbOps {
             return true;
         } catch (\PDOException $e) {
             file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->updateMediaItem() - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return false;
+        }
+    }
+
+    public function deleteMediaItem($data): bool
+    {
+        $this->DBH->beginTransaction();
+        $sql = 'DELETE FROM Likes WHERE media_id = :media_id';
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): Likes - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
+            return false;
+        }
+
+        $sql = 'DELETE FROM Comments WHERE media_id = :media_id';
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): Comments - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
+            return false;
+        }
+
+        $sql = 'DELETE FROM Ratings WHERE media_id = :media_id';
+
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): Ratings - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
+            return false;
+        }
+
+        $sql = 'DELETE FROM MediaItemTags WHERE media_id = :media_id';
+
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): MediaItemTags - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
+            return false;
+        }
+
+        $sql = 'SELECT filename FROM MediaItems WHERE media_id = :media_id AND user_id = :user_id';
+
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+            $STH->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $STH->fetch();
+            $filename = $row['filename'];
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): Select filename - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
+            return false;
+        }
+
+        $sql = 'DELETE FROM MediaItems WHERE media_id = :media_id AND user_id = :user_id';
+
+        try {
+            $STH = $this->DBH->prepare($sql);
+            $STH->execute($data);
+            if (!$STH->rowCount() > 0) {
+                return false;
+            }
+            $this->DBH->commit();
+            unlink(__DIR__ . '/../uploads/' . $filename);
+            return true;
+        } catch (\PDOException $e) {
+            file_put_contents(__DIR__ . '/../logs/PDOErrors.txt', 'MediaItemDbOps->deleteMediaItem(): Delete MediaItem - ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            $this->DBH->rollBack();
             return false;
         }
     }
