@@ -3,7 +3,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 global $DBH;
-require_once __DIR__ . '/dbConnect.php';
+require_once __DIR__ . '/../db/dbConnect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['username']) && isset($_POST['password'])) {
@@ -18,10 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user'] = $user;
             // print_r($_SESSION['user']);
             // redirect to secret page
-            header('Location: home.php');
+            header('Location: ../home.php');
             exit;
         } else {
-           header('Location: index.php?success=Invalid username or password');
+           header('Location: ../index.php?success=Invalid username or password');
         }
     }
 }

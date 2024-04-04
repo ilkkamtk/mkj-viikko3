@@ -6,7 +6,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 global $DBH;
-require_once 'dbConnect.php';
+require_once __DIR__ . '/../db/dbConnect.php';
 
 $sql = 'SELECT * FROM MediaItems;';
 
@@ -25,7 +25,7 @@ try {
         echo '<td>' . $row['created_at'] . '</td>';
         if ($_SESSION['user']['user_id'] == $row['user_id']) {
             echo '<td>
-                <a href="deleteData.php?id=' . $row['media_id'] . '">Delete</a>
+                <a href="operations/deleteData.php?id=' . $row['media_id'] . '">Delete</a>
                 <a href="#" class="modify-link" data-id="' . $row['media_id'] . '">Modify</a>   
               </td>';
         } else {

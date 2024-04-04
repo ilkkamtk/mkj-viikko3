@@ -1,6 +1,6 @@
 <?php
 global $DBH;
-require_once 'dbConnect.php';
+require_once __DIR__ . '/../db/dbConnect.php';
 
 if (isset($_GET['id'])) {
     $sql = 'SELECT * FROM MediaItems WHERE media_id = :media_id';
@@ -24,7 +24,7 @@ if (isset($_GET['id'])) {
 
 ?>
 
-<form action="modifyData.php" method="post">
+<form action="operations/modifyData.php" method="post">
     <input type="hidden" name="media_id" value="<?php echo $row['media_id']; ?>">
     <div>
         <label for="title">Title</label>

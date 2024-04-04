@@ -3,7 +3,7 @@
 
 global $host, $dbname, $username, $password, $port;
 
-require 'dbconfig.php';
+require __DIR__ . '/../config/config.php';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8;port=$port";
 

@@ -6,7 +6,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 global $DBH;
-require 'dbConnect.php';
+require_once __DIR__ . '/../db/dbConnect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['title']) && isset($_POST['description'])) {
@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $STH = $DBH->prepare($sql);
             $STH->execute($data);
             if ($STH->rowCount() === 0) {
-                header('Location: home.php?success=Item not modified');
+                header('Location: ../home.php?success=Item not modified');
                 exit;
             }
-            header('Location: home.php?success=Item modified');
+            header('Location: ../home.php?success=Item modified');
         } catch (PDOException $e){
             echo "Could not modify data in the database.";
             file_put_contents('PDOErrors.txt', 'modifyData.php - ' . $e->getMessage(), FILE_APPEND);

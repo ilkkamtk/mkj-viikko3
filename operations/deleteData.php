@@ -1,12 +1,12 @@
 <?php
 session_start();
 if (!isset($_SESSION['user'])) {
-    header('Location: index.php');
+    header('Location: ../index.php');
     exit;
 }
 
 global $DBH;
-require_once 'dbConnect.php';
+require_once __DIR__ . '/../db/dbConnect.php';
 
 if(isset($_GET['id'])) {
     $DBH->beginTransaction();
@@ -74,10 +74,10 @@ if(isset($_GET['id'])) {
         $STH->setFetchMode(PDO::FETCH_ASSOC);
         $row = $STH->fetch();
         $filename = $row['filename'];
-        $destination = __DIR__ . '/uploads/' . $filename;
+        $destination = __DIR__ . '/../uploads/' . $filename;
         if (!unlink($destination)) {
             $DBH->rollBack();
-            header('Location: home.php?success=File delete failed');
+            header('Location: ../home.php?success=File delete failed');
             exit;
         }
     } catch (PDOException $e) {
@@ -95,9 +95,9 @@ if(isset($_GET['id'])) {
         $STH->execute($data);
         $DBH->commit();
         if($STH->rowCount() > 0) {
-            header('Location: home.php?success=Item deleted');
+            header('Location: ../home.php?success=Item deleted');
         } else {
-            header('Location: home.php?success=Not your item.');
+            header('Location: ../home.php?success=Not your item.');
         }
     } catch (PDOException $e) {
         echo "Could not delete data from the database.";
@@ -106,5 +106,5 @@ if(isset($_GET['id'])) {
         exit;
     }
 } else {
-    header('Location: home.php?success=No hacking allowed.');
+    header('Location: ../home.php?success=No hacking allowed.');
 }

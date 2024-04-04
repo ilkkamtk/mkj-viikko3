@@ -29,7 +29,7 @@ endif;
                 if (isset($_SESSION['user'])):
                     ?>
                     <li><a href="home.php">Home</a></li>
-                    <li><a href="logout.php">Logout</a></li>
+                    <li><a href="operations/logout.php">Logout</a></li>
                 <?php
                 else:
                     ?>
