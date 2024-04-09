@@ -1,7 +1,6 @@
 const url = 'http://localhost/viikko3/operations/login.php';
 
 const testData = [
-    '12345',
     'password',
     '123456',
     'password123',
@@ -22,9 +21,6 @@ const login = async (password) => {
         });
         const result = await response.text();
         console.log(password, result);
-        if(result.includes('media_id')) {
-            console.log(`Password found: ${password}`);
-        }
     } catch (error) {
         console.error(error);
     }
