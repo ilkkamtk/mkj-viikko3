@@ -1,4 +1,5 @@
 <?php
+session_set_cookie_params(['httponly' => true]);
 session_start();
 require_once __DIR__ . '/inc/header.php';
 ?>
